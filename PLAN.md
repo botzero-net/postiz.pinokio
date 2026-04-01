@@ -240,11 +240,33 @@ OAuth, Stripe, Cloudflare R2 - power users only
 
 | Phase | Tasks | Status |
 |-------|-------|--------|
-| 1 | Core structure | 🔲 Not started |
-| 2 | Lifecycle scripts | 🔲 Not started |
-| 3 | UX enhancements | 🔲 Not started |
-| 4 | Documentation | 🔲 Not started |
-| 5 | Testing | 🔲 Not started |
+| 1 | Core structure | ✅ Done |
+| 2 | Lifecycle scripts | ✅ Done |
+| 3 | UX enhancements | ✅ Done |
+| 4 | Documentation | ✅ Done |
+| 5 | Testing | 🔲 Needs testing on Pinokio |
+
+## Files Created
+
+```
+postiz.pinokio/
+├── pinokio.json          ✅ App metadata
+├── pinokio.js            ✅ Menu logic with status detection
+├── install.js            ✅ Clone repo, generate .env, pull images
+├── start.js              ✅ Docker compose up -d
+├── stop.js               ✅ Docker compose down
+├── update.js             ✅ Git pull + docker compose pull + up
+├── reset.js              ✅ Docker compose down -v + remove files
+├── config.js             ✅ Open config for viewing
+├── logs.js               ✅ Stream container logs
+├── docker-compose.yml    ⚪ Uses upstream (cloned from gitroomhq)
+├── dynamicconfig/
+│   └── development-sql.yaml  ✅ Temporal config
+├── .env.example          ✅ Template with all options
+├── README.md             ✅ Full documentation
+├── PLAN.md               ✅ This file
+└── icon.png              ✅ App icon
+```
 
 ---
 
