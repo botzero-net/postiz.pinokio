@@ -9,8 +9,8 @@
     {
       "icon": "fa-brands fa-docker",
       "title": "Docker Required",
-      "description": "Postiz runs in Docker containers. Install Docker Desktop before continuing.",
-      "href": "https://www.docker.com/products/docker-desktop/"
+      "description": "Postiz runs in Docker. See README.md for installation instructions.",
+      "href": "https://docs.docker.com/get-started/"
     }
   ]
 }
