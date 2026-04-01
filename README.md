@@ -1,124 +1,98 @@
 # Postiz (Pinokio Launcher)
 
-1-click Pinokio launcher for [Postiz](https://github.com/gitroomhq/postiz-app) - the open-source social media scheduling tool with AI.
+1-click Pinokio launcher for [Postiz](https://github.com/gitroomhq/postiz-app).
 
-## What is Postiz?
+## ⚠️ REQUIREMENT: Docker must be installed
 
-Postiz is a modern alternative to Buffer, Hypefury, and other social media scheduling tools. Features:
+**Postiz runs in Docker containers. You MUST have Docker installed before using this launcher.**
 
-- **Multi-platform posting** - Schedule to X, LinkedIn, Reddit, Discord, Threads, TikTok, YouTube, Pinterest, Dribbble, Slack, Mastodon, Facebook, GitHub, and more
-- **AI-powered content** - Generate captions, hashtags, and post variations
-- **Analytics** - Track engagement across platforms
-- **Team collaboration** - Invite team members to collaborate
-- **Self-hosted** - Full control over your data
-
-## Requirements
-
-- **Docker** - Must be installed and running
-  - Install Docker Desktop (Mac/Windows) or Docker Engine (Linux)
-- **RAM:** 2GB minimum, 4GB recommended
-- **Disk:** ~2GB for images + data
-
-### Docker Installation
-
-If you don't have Docker installed:
-
-**Mac/Windows:** Download [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+### Install Docker
 
 **Linux:**
 ```bash
-curl -fsSL https://get.docker.com | sh
-# Add your user to docker group
+curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER
-# Log out and log back in, OR run: newgrp docker
+newgrp docker
 ```
+
+**Mac/Windows:** Download [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+**Verify Docker works:**
+```bash
+docker info
+```
+
+If you see "permission denied", run `newgrp docker` or log out and back in.
+
+---
 
 ## Installation
 
-### 1. Install
+1. **Install Docker** (see above)
+2. Click **Install** in Pinokio (clones repo, generates JWT secret)
+3. Click **Start** (launches 8 Docker containers)
+4. Open **http://localhost:4007**
 
-Click **Install** to:
-- Verify Docker is running
-- Clone the postiz-docker-compose repository
-- Generate a unique JWT secret
-- Pull all Docker images
+---
 
-First run takes 1-2 minutes depending on your internet speed.
+## What is Postiz?
 
-### 2. Start
+Open-source social media scheduling tool with AI:
+- Schedule posts to X, LinkedIn, Reddit, Discord, Threads, TikTok, YouTube, Pinterest, Dribbble, Slack, Mastodon, Facebook, GitHub
+- AI-powered content generation
+- Analytics and team collaboration
 
-Click **Start** to launch all containers. First startup takes 1-2 minutes.
-
-Access Postiz at: **http://localhost:4007**
-
-### 3. Configure Social Media
-
-Edit `app/docker-compose.yaml` to add your social media API keys.
-
-#### Example for X (Twitter)
-```yaml
-X_API_KEY: 'your-api-key'
-X_API_SECRET: 'your-api-secret'
-```
-
-Get your API keys from:
-- [X Developer Portal](https://developer.twitter.com/)
-- [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
-- [Reddit App Preferences](https://www.reddit.com/prefs/apps)
-- [Discord Developer Portal](https://discord.com/developers/)
-
-### 4. Stop
-
-Click **Stop** to gracefully shut down all containers. Your data persists.
-
-### 5. Reset
-
-Click **Reset** to remove all containers and delete all data. You'll need to reinstall.
+---
 
 ## Ports
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| Postiz | 4007 | Main web interface |
-| Temporal UI | 8080 | Workflow monitoring |
+| Service | Port |
+|---------|------|
+| Postiz | 4007 |
+| Temporal UI | 8080 |
+
+---
+
+## Configure Social Media
+
+Edit `app/docker-compose.yaml` to add your API keys:
+
+```yaml
+X_API_KEY: 'your-twitter-api-key'
+X_API_SECRET: 'your-twitter-api-secret'
+OPENAI_API_KEY: 'sk-your-openai-key'
+```
+
+Get API keys from:
+- [X Developer Portal](https://developer.twitter.com/)
+- [LinkedIn Developers](https://www.linkedin.com/developers/)
+- [OpenAI](https://platform.openai.com/)
+
+---
 
 ## Troubleshooting
 
-### "Docker not found"
+### "docker: command not found"
 
-Make sure Docker is installed and running. On Linux:
+Install Docker first (see above).
+
+### "permission denied"
+
 ```bash
-# Start Docker
-sudo systemctl start docker
-
-# Check status
-sudo systemctl status docker
+newgrp docker
 ```
 
-### "Port 4007 in use"
+Or log out and log back in.
 
-Stop any other service using port 4007:
+### "port 4007 already in use"
+
 ```bash
-# Find what's using port 4007
-sudo lsof -i :4007
+lsof -i :4007  # Find what's using it
 ```
 
-### "Can't connect to Postiz"
-
-Wait 1-2 minutes after starting. All containers need time to initialize.
-
-Check container status:
-```bash
-cd app
-docker compose ps
-```
-
-### "View Logs"
-
-Click **Logs** to see container output.
+---
 
 ## Credits
 
-- [Postiz](https://github.com/gitroomhq/postiz-app) by GitRoom
+- [Postiz](https://github.com/gitroomhq/postiz-app)
 - [Postiz Docker Compose](https://github.com/gitroomhq/postiz-docker-compose)
-- [Documentation](https://docs.postiz.com)

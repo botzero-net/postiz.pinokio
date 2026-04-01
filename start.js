@@ -5,14 +5,19 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        message: "echo 'Starting Postiz...' && docker compose up -d"
+        message: [
+          "docker compose up -d"
+        ]
       }
     },
     {
       method: "shell.run",
       params: {
         path: "app",
-        message: "sleep 15 && echo 'Containers starting...' && docker compose ps"
+        message: [
+          "sleep 5",
+          "docker compose ps"
+        ]
       }
     }
   ]
