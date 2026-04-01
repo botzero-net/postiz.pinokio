@@ -1,5 +1,14 @@
 module.exports = {
   run: [
+    // Install Docker if not present (single command, no if/then/fi)
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "command -v docker >/dev/null 2>&1 || (curl -fsSL https://get.docker.com | sudo sh && sudo usermod -aG docker $USER)"
+        ]
+      }
+    },
     // Clone repo
     {
       when: "{{!exists('app')}}",
@@ -10,7 +19,7 @@ module.exports = {
         ]
       }
     },
-    // Generate JWT secret
+    // Generate JWT
     {
       method: "shell.run",
       params: {

@@ -1,37 +1,14 @@
 # Postiz (Pinokio Launcher)
 
-1-click Pinokio launcher for [Postiz](https://github.com/gitroomhq/postiz-app).
-
-## ⚠️ REQUIREMENT: Docker must be installed
-
-**Postiz runs in Docker containers. You MUST have Docker installed before using this launcher.**
-
-### Install Docker
-
-**Linux:**
-```bash
-curl -fsSL https://get.docker.com | sudo sh
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-**Mac/Windows:** Download [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-
-**Verify Docker works:**
-```bash
-docker info
-```
-
-If you see "permission denied", run `newgrp docker` or log out and back in.
-
----
+1-click Pinokio launcher for [Postiz](https://github.com/gitroomhq/postiz-app) - social media scheduling with AI.
 
 ## Installation
 
-1. **Install Docker** (see above)
-2. Click **Install** in Pinokio (clones repo, generates JWT secret)
-3. Click **Start** (launches 8 Docker containers)
-4. Open **http://localhost:4007**
+1. Click **Install** (auto-installs Docker if needed, clones repo, generates config)
+2. Click **Start** (launches containers)
+3. Open **http://localhost:4007**
+
+**Note for Linux:** After first install, run `newgrp docker` or log out/back in, then click Install again.
 
 ---
 
