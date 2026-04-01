@@ -4,5 +4,13 @@
   "title": "Postiz",
   "description": "Open-source social media scheduling tool with AI. Schedule posts to X, LinkedIn, Reddit, Discord, Threads, TikTok, YouTube, Pinterest, Dribbble, Slack, Mastodon, Facebook, GitHub, and more.",
   "icon": "icon.png",
-  "platform": "*"
+  "platform": "*",
+  "pre": [
+    {
+      "icon": "fa-brands fa-docker",
+      "title": "Docker Required",
+      "description": "Postiz runs in Docker containers. Install Docker Desktop before continuing.",
+      "href": "https://www.docker.com/products/docker-desktop/"
+    }
+  ]
 }

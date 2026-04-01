@@ -8,6 +8,14 @@ module.exports = {
           "docker compose down"
         ]
       }
+    },
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "echo 'Postiz stopped.'"
+        ]
+      }
     }
   ]
 }
