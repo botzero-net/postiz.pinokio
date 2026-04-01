@@ -4,11 +4,7 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        message: [
-          "echo 'Resetting Postiz (this will delete all data)...'",
-          "docker compose down -v",
-          "echo 'Containers and volumes removed.'"
-        ]
+        message: "docker compose down -v && echo 'Stopped and volumes removed'"
       }
     },
     {
@@ -20,9 +16,7 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        message: [
-          "echo 'Reset complete. Click Install to set up again.'"
-        ]
+        message: "echo '✅ Postiz has been reset. Click Install to set up again.'"
       }
     }
   ]

@@ -4,9 +4,7 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        message: [
-          "docker compose logs -f --tail=100"
-        ]
+        message: "docker compose logs -f --tail=100"
       }
     }
   ]
