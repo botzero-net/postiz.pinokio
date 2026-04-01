@@ -5,16 +5,6 @@ module.exports = {
   icon: "icon.png",
   platform: "*",
 
-  // Prerequisite info shown in Pinokio UI
-  pre: [
-    {
-      icon: "fa-brands fa-docker",
-      title: "Docker Required",
-      description: "Postiz runs in Docker containers. Docker Desktop (Windows/macOS) or Docker Engine (Linux) must be installed.",
-      href: "https://www.docker.com/products/docker-desktop/"
-    }
-  ],
-
   menu: async (kernel, info) => {
     const installed = info.exists("app")
     const running = {
