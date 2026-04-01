@@ -1,61 +1,31 @@
 module.exports = {
   run: [
-    // Step 1: Check Docker and show instructions if not available
+    // Step 1: Check Docker status
     {
       method: "shell.run",
       params: {
-        message: [
-          "echo 'Checking Docker...'",
-          "if docker info >/dev/null 2>&1; then",
-          "  echo ''",
-          "  echo 'Docker is available. Proceeding with installation...'",
-          "else",
-          "  echo ''",
-          "  echo '╔══════════════════════════════════════════════════════════════════╗'",
-          "  echo '║            DOCKER REQUIRED - INSTALLATION INSTRUCTIONS            ║'",
-          "  echo '╚══════════════════════════════════════════════════════════════════╝'",
-          "  echo ''",
-          "  echo 'Postiz requires Docker to run.'",
-          "  echo ''",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "  echo 'LINUX - Run in terminal:'",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "  echo '  curl -fsSL https://get.docker.com | sudo sh'",
-          "  echo '  sudo usermod -aG docker $USER'",
-          "  echo '  newgrp docker'",
-          "  echo ''",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "  echo 'WINDOWS / macOS:'",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "  echo '  Download: https://www.docker.com/products/docker-desktop'",
-          "  echo ''",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "  echo 'After installing Docker, click Install again.'",
-          "  echo '════════════════════════════════════════════════════════════════════'",
-          "fi"
-        ]
+        message: "echo 'Checking Docker...'; docker info >/dev/null 2>&1 && echo 'Docker OK' || echo 'Docker NOT found - install Docker first'"
       }
     },
 
-    // Step 2: Only proceed if Docker exists
+    // Step 2: Clone repo (only if Docker available and not already cloned)
     {
-      when: "{{!exists('app')}}",
       method: "shell.run",
       params: {
-        message: "docker info >/dev/null 2>&1 && git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app || echo 'Skipping clone - Docker not available'"
+        message: "docker info >/dev/null 2>&1 && test ! -d app && git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app || echo 'Skipping clone'"
       }
     },
 
-    // Step 3: Create Temporal config (only if app exists)
+    // Step 3: Create config directory
     {
-      when: "{{exists('app')}}",
-      method: "fs.mkdir",
+      method: "shell.run",
       params: {
-        path: "app/dynamicconfig"
+        message: "mkdir -p app/dynamicconfig"
       }
     },
+
+    // Step 4: Write Temporal config
     {
-      when: "{{exists('app')}}",
       method: "fs.write",
       params: {
         path: "app/dynamicconfig/development-sql.yaml",
@@ -63,38 +33,29 @@ module.exports = {
       }
     },
 
-    // Step 4: Pull and start (only if app exists)
+    // Step 5: Pull images
     {
-      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
         message: "docker compose pull"
       }
     },
+
+    // Step 6: Start containers
     {
-      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
         message: "docker compose up -d"
       }
     },
+
+    // Step 7: Done
     {
-      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
-        path: "app",
-        message: [
-          "sleep 10",
-          "echo ''",
-          "echo '=========================================='",
-          "echo 'POSTIZ INSTALLED!'",
-          "echo '=========================================='",
-          "echo ''",
-          "echo 'Access at: http://localhost:4007'",
-          "docker compose ps"
-        ]
+        message: "echo 'Postiz installed! Open http://localhost:4007'"
       }
     }
   ]
