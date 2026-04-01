@@ -1,46 +1,107 @@
 const crypto = require('crypto')
-const os = require('os')
 
-function generateSecret(length = 64) {
-  return crypto.randomBytes(length).toString('hex').slice(0, length)
-}
+// Generate JWT secret at module load time
+const JWT_SECRET = crypto.randomBytes(64).toString('hex').slice(0, 64)
 
 module.exports = {
   run: [
-    // Check and install Docker if missing
+    // Check if Docker is installed
     {
       method: "shell.run",
       params: {
         message: [
-          "echo 'Checking for Docker...'",
-          "if ! command -v docker &> /dev/null; then",
-          "  echo 'Docker not found. Installing Docker...'",
-          "  if [[ '$OSTYPE' == 'linux-gnu'* ]]; then",
-          "    curl -fsSL https://get.docker.com | sudo sh",
-          "    sudo usermod -aG docker $USER",
-          "    echo 'Docker installed. You may need to log out and back in for group changes to take effect.'",
-          "  elif [[ '$OSTYPE' == 'darwin'* ]]; then",
-          "    echo 'Please install Docker Desktop from: https://www.docker.com/products/docker-desktop'",
-          "    exit 1",
-          "  else",
-          "    echo 'Please install Docker from: https://docs.docker.com/get-docker/'",
-          "    exit 1",
-          "  fi",
-          "else",
-          "  echo 'Docker found:'",
+          "echo '═══════════════════════════════════════════'",
+          "echo '  Postiz Installer - Checking Dependencies'",
+          "echo '═══════════════════════════════════════════'",
+          "echo ''",
+          "if command -v docker &> /dev/null; then",
+          "  echo '✓ Docker is installed'",
           "  docker --version",
+          "else",
+          "  echo '✗ Docker not found'",
+          "  echo ''",
+          "  touch /tmp/postiz_need_docker",
           "fi"
         ]
       }
     },
-    // Verify Docker is running
+    // Install Docker if needed
+    {
+      when: "{{exists('/tmp/postiz_need_docker')}}",
+      method: "shell.run",
+      params: {
+        message: [
+          "echo ''",
+          "echo 'Installing Docker...'",
+          "echo ''",
+          "curl -fsSL https://get.docker.com | sudo sh",
+          "sudo usermod -aG docker $USER",
+          "echo ''",
+          "echo '═══════════════════════════════════════════'",
+          "echo '  Docker installed successfully!'",
+          "echo '═══════════════════════════════════════════'",
+          "echo ''",
+          "touch /tmp/postiz_need_restart",
+          "rm -f /tmp/postiz_need_docker"
+        ]
+      }
+    },
+    // Prompt for restart if Docker was just installed
+    {
+      when: "{{exists('/tmp/postiz_need_restart')}}",
+      method: "shell.run",
+      params: {
+        message: [
+          "rm -f /tmp/postiz_need_restart",
+          "echo ''",
+          "echo '╔═══════════════════════════════════════════╗'",
+          "echo '║         ⚠️  ACTION REQUIRED               ║'",
+          "echo '╚═══════════════════════════════════════════╝'",
+          "echo ''",
+          "echo 'Docker has been installed and your user has'",
+          "echo 'been added to the docker group.'",
+          "echo ''",
+          "echo 'Please do ONE of the following:'",
+          "echo ''",
+          "echo '  Option 1: Open a terminal and run:'",
+          "echo '            newgrp docker'",
+          "echo '            Then click Install again'",
+          "echo ''",
+          "echo '  Option 2: Log out and log back in'",
+          "echo '            Then click Install again'",
+          "echo ''",
+          "echo '  Option 3: Restart Pinokio'",
+          "echo '            Then click Install again'",
+          "echo ''",
+          "echo '═══════════════════════════════════════════'",
+          "exit 0"
+        ]
+      }
+    },
+    // Verify Docker is accessible
     {
       method: "shell.run",
       params: {
         message: [
-          "echo 'Verifying Docker daemon is running...'",
-          "docker info > /dev/null 2>&1 || { echo 'Docker daemon not running. Please start Docker and try again.'; exit 1; }",
-          "echo 'Docker is ready!'"
+          "echo 'Verifying Docker access...'",
+          "if ! docker info > /dev/null 2>&1; then",
+          "  echo ''",
+          "  echo '⚠️  Cannot connect to Docker daemon'",
+          "  echo ''",
+          "  echo 'This usually means:'",
+          "  echo '  1. Docker service is not running'",
+          "  echo '     Fix: sudo systemctl start docker'",
+          "  echo ''",
+          "  echo '  2. Your user is not in docker group'",
+          "  echo '     Fix: newgrp docker'",
+          "  echo ''",
+          "  echo '  3. You need to log out/back in'",
+          "  echo '     Fix: Log out and log back in'",
+          "  echo ''",
+          "  exit 1",
+          "fi",
+          "echo '✓ Docker is running and accessible'",
+          "echo ''"
         ]
       }
     },
@@ -50,6 +111,7 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
+          "echo 'Downloading Postiz...'",
           "git clone https://github.com/gitroomhq/postiz-docker-compose.git app"
         ]
       }
@@ -66,10 +128,11 @@ module.exports = {
 MAIN_URL=http://localhost:4007
 FRONTEND_URL=http://localhost:4007
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4007/api
-JWT_SECRET=${generateSecret(64)}
+JWT_SECRET=${JWT_SECRET}
 DATABASE_URL=postgresql://postiz-user:postiz-password@postiz-postgres:5432/postiz-db-local
 REDIS_URL=redis://postiz-redis:6379
 BACKEND_INTERNAL_URL=http://localhost:3000
+BACKEND_URL=http://localhost:3000
 TEMPORAL_ADDRESS=temporal:7233
 IS_GENERAL=true
 DISABLE_REGISTRATION=false
@@ -124,20 +187,29 @@ NX_ADD_PLUGINS=false
       params: {
         path: "app",
         message: [
-          "echo 'Pulling Docker images (this may take a few minutes)...'",
+          "echo ''",
+          "echo 'Downloading Docker images (this may take a few minutes)...'",
+          "echo ''",
           "docker compose pull"
         ]
       }
     },
+    // Success message
     {
       method: "shell.run",
       params: {
         message: [
           "echo ''",
-          "echo '✅ Installation complete!'",
+          "echo '═══════════════════════════════════════════'",
+          "echo '  ✅ Installation Complete!'",
+          "echo '═══════════════════════════════════════════'",
           "echo ''",
           "echo 'Click Start to launch Postiz'",
-          "echo 'First startup takes 1-2 minutes for all containers to initialize.'",
+          "echo ''",
+          "echo 'First startup takes 1-2 minutes for all containers'",
+          "echo 'to initialize.'",
+          "echo ''",
+          "echo 'Access Postiz at: http://localhost:4007'",
           "echo ''"
         ]
       }

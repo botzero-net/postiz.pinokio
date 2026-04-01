@@ -38,9 +38,17 @@ sudo usermod -aG docker $USER
 ### 1. Install
 
 Click **Install** to:
+- **Auto-install Docker** if not present (Linux only)
 - Clone the Postiz Docker Compose repository
 - Generate a secure configuration with random JWT secret
 - Pull all required Docker images
+
+**If Docker is installed for the first time**, you'll be prompted to either:
+- Run `newgrp docker` in a terminal, then click Install again
+- Log out and back in, then click Install again
+- Restart Pinokio, then click Install again
+
+This is a one-time step to add your user to the docker group.
 
 ### 2. Start
 
