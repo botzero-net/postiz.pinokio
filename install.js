@@ -1,52 +1,65 @@
 module.exports = {
   run: [
-    // Step 1: Check if Docker is running
+    // Check if Docker is installed and running
     {
       method: "shell.run",
       params: {
-        message: "docker info >/dev/null 2>&1 && echo 'Docker OK' || (echo 'ERROR: Docker is not running' && echo 'Please start Docker and try again' && exit 1)"
+        message: [
+          "if ! docker info >/dev/null 2>&1; then",
+          "  echo 'Docker not found. Installing...'",
+          "  curl -fsSL https://get.docker.com | sudo sh",
+          "  sudo usermod -aG docker $USER",
+          "  echo ''",
+          "  echo '═══════════════════════════════════════════'",
+          "  echo '  Docker has been installed!'",
+          "  echo '═══════════════════════════════════════════'",
+          "  echo ''",
+          "  echo 'Please run this command in a terminal:'",
+          "  echo '  newgrp docker'",
+          "  echo ''",
+          "  echo 'Then click Install again in Pinokio.'",
+          "  echo ''",
+          "  exit 0",
+          "fi",
+          "echo '✓ Docker is running'"
+        ]
       }
     },
-    // Step 2: Clone the postiz-docker-compose repository
+    // Clone postiz-docker-compose
     {
+      when: "{{!exists('app')}}",
       method: "shell.run",
       params: {
-        message: "test -d app && echo 'Already cloned' || git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app"
+        message: [
+          "git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app"
+        ]
       }
     },
-    // Step 3: Generate unique JWT secret
+    // Generate JWT secret
     {
       method: "shell.run",
       params: {
         path: "app",
-        message: `#!/bin/bash
-if grep -q "random string that is unique to every install" docker-compose.yaml 2>/dev/null; then
-  JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || head -c 64 /dev/urandom | xxd -p -c 64 2>/dev/null || echo "postiz_$(date +%s)_$$")
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/random string that is unique to every install - just type random characters here!/$JWT_SECRET/" docker-compose.yaml
-  else
-    sed -i "s/random string that is unique to every install - just type random characters here!/$JWT_SECRET/" docker-compose.yaml
-  fi
-  echo "Generated unique JWT secret"
-else
-  echo "JWT secret already configured"
-fi
-`
+        message: [
+          "JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || echo \"postiz_$(date +%s)_$$\")",
+          "if [[ \"$OSTYPE\" == \"darwin\"* ]]; then",
+          "  sed -i '' \"s/random string that is unique to every install - just type random characters here!/$JWT_SECRET/\" docker-compose.yaml",
+          "else",
+          "  sed -i \"s/random string that is unique to every install - just type random characters here!/$JWT_SECRET/\" docker-compose.yaml",
+          "fi",
+          "echo '✓ Generated unique JWT secret'"
+        ]
       }
     },
-    // Step 4: Pull all Docker images
+    // Pull images
     {
       method: "shell.run",
       params: {
         path: "app",
-        message: "echo 'Pulling Docker images...' && docker compose pull"
-      }
-    },
-    // Step 5: Success message
-    {
-      method: "shell.run",
-      params: {
-        message: "echo '' && echo '✅ Installation Complete!' && echo '' && echo 'Click Start to launch Postiz' && echo 'Access at: http://localhost:4007' && echo ''"
+        message: [
+          "echo 'Pulling Docker images (this takes a few minutes)...'",
+          "docker compose pull"
+        ]
       }
     }
   ]
