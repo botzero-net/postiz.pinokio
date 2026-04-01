@@ -14,9 +14,24 @@ Postiz is a modern alternative to Buffer, Hypefury, and other social media sched
 
 ## Requirements
 
-- **Docker** - Must be installed and running
+- **Docker** - Must be installed and running on your system
+  - Install Docker Desktop (Mac/Windows) or Docker Engine (Linux)
+  - Make sure `docker` command is accessible from terminal
 - **RAM:** 2GB minimum, 4GB recommended
 - **Disk:** ~2GB for images + data
+
+### Docker Installation
+
+If you don't have Docker installed:
+
+**Mac/Windows:** Download [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+**Linux (Ubuntu/Debian):**
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# Log out and back in
+```
 
 ## Installation
 

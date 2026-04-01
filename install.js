@@ -6,7 +6,7 @@ function generateSecret(length = 64) {
 
 module.exports = {
   run: [
-    // Clone postiz-docker-compose repo
+    // Clone repo
     {
       when: "{{!exists('app')}}",
       method: "shell.run",
@@ -16,18 +16,7 @@ module.exports = {
         ]
       }
     },
-    // Generate .env from template
-    {
-      when: "{{!exists('app/.env')}}",
-      method: "shell.run",
-      params: {
-        path: "app",
-        message: [
-          "cp ../.env.example .env || true"
-        ]
-      }
-    },
-    // Generate JWT secret
+    // Generate .env
     {
       when: "{{!exists('app/.env')}}",
       method: "fs.write",
@@ -51,7 +40,7 @@ STORAGE_PROVIDER=local
 UPLOAD_DIRECTORY=/uploads
 NEXT_PUBLIC_UPLOAD_DIRECTORY=/uploads
 
-# === Social Media API Keys (edit to enable platforms) ===
+# === Social Media API Keys ===
 X_API_KEY=
 X_API_SECRET=
 LINKEDIN_CLIENT_ID=
@@ -83,11 +72,7 @@ MASTODON_CLIENT_ID=
 MASTODON_CLIENT_SECRET=
 BEEHIIVE_API_KEY=
 BEEHIIVE_PUBLICATION_ID=
-
-# === AI ===
 OPENAI_API_KEY=
-
-# === Misc ===
 EXTENSION_ID=icpokdlcikdmemjkeoojhocmhmehpaia
 API_LIMIT=30
 FEE_AMOUNT=0.05
@@ -100,6 +85,9 @@ NX_ADD_PLUGINS=false
       method: "shell.run",
       params: {
         path: "app",
+        env: {
+          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
+        },
         message: [
           "docker compose pull"
         ]

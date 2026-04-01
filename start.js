@@ -5,20 +5,21 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
+        env: {
+          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
+        },
         message: [
-          "docker compose up -d"
+          "docker compose up -d 2>/dev/null || /usr/bin/docker compose up -d 2>/dev/null || /usr/local/bin/docker compose up -d"
         ]
       }
     },
-    // Wait for containers to be healthy
     {
       method: "shell.run",
       params: {
         path: "app",
         message: [
-          "echo 'Waiting for Postiz to start (this may take 1-2 minutes)...'",
-          "sleep 10",
-          "docker compose ps"
+          "echo 'Waiting for containers to start (1-2 minutes)...'",
+          "sleep 10"
         ]
       }
     }

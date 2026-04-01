@@ -4,8 +4,11 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
+        env: {
+          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
+        },
         message: [
-          "docker compose logs -f --tail=100"
+          "docker compose logs -f --tail=100 2>/dev/null || /usr/bin/docker compose logs -f --tail=100 2>/dev/null || /usr/local/bin/docker compose logs -f --tail=100"
         ]
       }
     }
