@@ -4,17 +4,13 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        message: [
-          "docker compose down"
-        ]
+        message: "docker compose down"
       }
     },
     {
       method: "shell.run",
       params: {
-        message: [
-          "echo 'Postiz stopped.'"
-        ]
+        message: "echo 'Postiz stopped.'"
       }
     }
   ]

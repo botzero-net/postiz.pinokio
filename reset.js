@@ -4,10 +4,7 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        message: [
-          "echo 'Stopping and removing containers...'",
-          "docker compose down -v"
-        ]
+        message: "docker compose down -v"
       }
     },
     {
