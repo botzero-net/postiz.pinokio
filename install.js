@@ -1,61 +1,54 @@
 module.exports = {
   run: [
-    // Step 1: Check Docker status
     {
       method: "shell.run",
       params: {
-        message: "echo 'Checking Docker...'; docker info >/dev/null 2>&1 && echo 'Docker OK' || echo 'Docker NOT found - install Docker first'"
+        message: "docker info >/dev/null 2>&1 && echo 'Docker is ready' || echo 'Docker NOT found - please install Docker first'"
       }
     },
-
-    // Step 2: Clone repo (only if Docker available and not already cloned)
     {
+      when: "{{!exists('app')}}",
       method: "shell.run",
       params: {
-        message: "docker info >/dev/null 2>&1 && test ! -d app && git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app || echo 'Skipping clone'"
+        message: "docker info >/dev/null 2>&1 && git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app || echo 'Skipping clone - Docker not available'"
       }
     },
-
-    // Step 3: Create config directory
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         message: "mkdir -p app/dynamicconfig"
       }
     },
-
-    // Step 4: Write Temporal config
     {
+      when: "{{exists('app')}}",
       method: "fs.write",
       params: {
         path: "app/dynamicconfig/development-sql.yaml",
         text: "limit.maxIDLength:\n  - value: 255\n    constraints: {}\nsystem.forceSearchAttributesCacheRefreshOnRead:\n  - value: true\n    constraints: {}\n"
       }
     },
-
-    // Step 5: Pull images
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
-        message: "docker compose pull"
+        message: "docker info >/dev/null 2>&1 && docker compose pull || echo 'Cannot pull images'"
       }
     },
-
-    // Step 6: Start containers
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
-        message: "docker compose up -d"
+        message: "docker info >/dev/null 2>&1 && docker compose up -d || echo 'Cannot start containers'"
       }
     },
-
-    // Step 7: Done
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
-        message: "echo 'Postiz installed! Open http://localhost:4007'"
+        message: "docker info >/dev/null 2>&1 && echo 'POSTIZ READY - open http://localhost:4007' || echo 'Install Docker first, then click Install again'"
       }
     }
   ]
