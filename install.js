@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const os = require('os')
 
 function generateSecret(length = 64) {
   return crypto.randomBytes(length).toString('hex').slice(0, length)
@@ -6,7 +7,44 @@ function generateSecret(length = 64) {
 
 module.exports = {
   run: [
-    // Clone repo
+    // Check and install Docker if missing
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "echo 'Checking for Docker...'",
+          "if ! command -v docker &> /dev/null; then",
+          "  echo 'Docker not found. Installing Docker...'",
+          "  if [[ '$OSTYPE' == 'linux-gnu'* ]]; then",
+          "    curl -fsSL https://get.docker.com | sudo sh",
+          "    sudo usermod -aG docker $USER",
+          "    echo 'Docker installed. You may need to log out and back in for group changes to take effect.'",
+          "  elif [[ '$OSTYPE' == 'darwin'* ]]; then",
+          "    echo 'Please install Docker Desktop from: https://www.docker.com/products/docker-desktop'",
+          "    exit 1",
+          "  else",
+          "    echo 'Please install Docker from: https://docs.docker.com/get-docker/'",
+          "    exit 1",
+          "  fi",
+          "else",
+          "  echo 'Docker found:'",
+          "  docker --version",
+          "fi"
+        ]
+      }
+    },
+    // Verify Docker is running
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "echo 'Verifying Docker daemon is running...'",
+          "docker info > /dev/null 2>&1 || { echo 'Docker daemon not running. Please start Docker and try again.'; exit 1; }",
+          "echo 'Docker is ready!'"
+        ]
+      }
+    },
+    // Clone postiz-docker-compose repo
     {
       when: "{{!exists('app')}}",
       method: "shell.run",
@@ -16,7 +54,7 @@ module.exports = {
         ]
       }
     },
-    // Generate .env
+    // Generate .env with secure random JWT secret
     {
       when: "{{!exists('app/.env')}}",
       method: "fs.write",
@@ -85,11 +123,22 @@ NX_ADD_PLUGINS=false
       method: "shell.run",
       params: {
         path: "app",
-        env: {
-          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
-        },
         message: [
+          "echo 'Pulling Docker images (this may take a few minutes)...'",
           "docker compose pull"
+        ]
+      }
+    },
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "echo ''",
+          "echo '✅ Installation complete!'",
+          "echo ''",
+          "echo 'Click Start to launch Postiz'",
+          "echo 'First startup takes 1-2 minutes for all containers to initialize.'",
+          "echo ''"
         ]
       }
     }

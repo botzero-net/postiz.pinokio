@@ -4,11 +4,10 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        env: {
-          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
-        },
         message: [
-          "docker compose down -v 2>/dev/null || /usr/bin/docker compose down -v 2>/dev/null || /usr/local/bin/docker compose down -v"
+          "echo 'Resetting Postiz (this will delete all data)...'",
+          "docker compose down -v",
+          "echo 'Containers and volumes removed.'"
         ]
       }
     },
@@ -16,6 +15,14 @@ module.exports = {
       method: "fs.rm",
       params: {
         path: "app"
+      }
+    },
+    {
+      method: "shell.run",
+      params: {
+        message: [
+          "echo 'Reset complete. Click Install to set up again.'"
+        ]
       }
     }
   ]

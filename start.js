@@ -5,11 +5,9 @@ module.exports = {
       method: "shell.run",
       params: {
         path: "app",
-        env: {
-          PATH: "/usr/local/bin:/usr/bin:/bin:{{env.PATH || ''}}"
-        },
         message: [
-          "docker compose up -d 2>/dev/null || /usr/bin/docker compose up -d 2>/dev/null || /usr/local/bin/docker compose up -d"
+          "echo 'Starting Postiz...'",
+          "docker compose up -d"
         ]
       }
     },
@@ -18,8 +16,13 @@ module.exports = {
       params: {
         path: "app",
         message: [
-          "echo 'Waiting for containers to start (1-2 minutes)...'",
-          "sleep 10"
+          "echo ''",
+          "echo 'Waiting for containers to initialize (1-2 minutes)...'",
+          "echo 'Container status:'",
+          "docker compose ps",
+          "echo ''",
+          "echo 'Access Postiz at: http://localhost:4007'",
+          "echo ''"
         ]
       }
     }
