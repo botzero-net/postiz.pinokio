@@ -2,7 +2,7 @@
   "version": "5.0",
   "name": "postiz",
   "title": "Postiz",
-  "description": "Open-source social media scheduling tool with AI. Schedule posts to X, LinkedIn, Reddit, Discord, and more.",
+  "description": "Open-source social media scheduling tool with AI. Schedule posts to X, LinkedIn, Reddit, Discord, Threads, TikTok, YouTube, Pinterest, Dribbble, Slack, Mastodon, Facebook, GitHub, and more.",
   "icon": "icon.png",
   "platform": "*"
 }
