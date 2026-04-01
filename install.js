@@ -1,32 +1,61 @@
 module.exports = {
   run: [
-    // Step 1: Check Docker
+    // Step 1: Check Docker and show instructions if not available
     {
       method: "shell.run",
       params: {
-        message: "docker info >/dev/null 2>&1 || (echo 'ERROR: Docker is not running. Please install and start Docker first.' && exit 1)"
+        message: [
+          "echo 'Checking Docker...'",
+          "if docker info >/dev/null 2>&1; then",
+          "  echo ''",
+          "  echo 'Docker is available. Proceeding with installation...'",
+          "else",
+          "  echo ''",
+          "  echo '╔══════════════════════════════════════════════════════════════════╗'",
+          "  echo '║            DOCKER REQUIRED - INSTALLATION INSTRUCTIONS            ║'",
+          "  echo '╚══════════════════════════════════════════════════════════════════╝'",
+          "  echo ''",
+          "  echo 'Postiz requires Docker to run.'",
+          "  echo ''",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "  echo 'LINUX - Run in terminal:'",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "  echo '  curl -fsSL https://get.docker.com | sudo sh'",
+          "  echo '  sudo usermod -aG docker $USER'",
+          "  echo '  newgrp docker'",
+          "  echo ''",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "  echo 'WINDOWS / macOS:'",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "  echo '  Download: https://www.docker.com/products/docker-desktop'",
+          "  echo ''",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "  echo 'After installing Docker, click Install again.'",
+          "  echo '════════════════════════════════════════════════════════════════════'",
+          "fi"
+        ]
       }
     },
 
-    // Step 2: Clone repo
+    // Step 2: Only proceed if Docker exists
     {
       when: "{{!exists('app')}}",
       method: "shell.run",
       params: {
-        message: "git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app"
+        message: "docker info >/dev/null 2>&1 && git clone --depth 1 https://github.com/gitroomhq/postiz-docker-compose.git app || echo 'Skipping clone - Docker not available'"
       }
     },
 
-    // Step 3: Create Temporal config directory
+    // Step 3: Create Temporal config (only if app exists)
     {
+      when: "{{exists('app')}}",
       method: "fs.mkdir",
       params: {
         path: "app/dynamicconfig"
       }
     },
-
-    // Step 4: Write Temporal config file
     {
+      when: "{{exists('app')}}",
       method: "fs.write",
       params: {
         path: "app/dynamicconfig/development-sql.yaml",
@@ -34,39 +63,25 @@ module.exports = {
       }
     },
 
-    // Step 5: Generate JWT secret
+    // Step 4: Pull and start (only if app exists)
     {
-      method: "shell.run",
-      params: {
-        path: "app",
-        message: [
-          "JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || head -c 32 /dev/urandom | base64 | tr -d '\\n')",
-          "sed -i \"s/JWT_SECRET: 'random string that is unique to every install - just type random characters here!'/JWT_SECRET: '$JWT_SECRET'/g\" docker-compose.yaml 2>/dev/null || true",
-          "echo 'JWT secret configured.'"
-        ]
-      }
-    },
-
-    // Step 6: Pull Docker images
-    {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
         message: "docker compose pull"
       }
     },
-
-    // Step 7: Start containers
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
         message: "docker compose up -d"
       }
     },
-
-    // Step 8: Show status
     {
+      when: "{{exists('app')}}",
       method: "shell.run",
       params: {
         path: "app",
@@ -74,11 +89,10 @@ module.exports = {
           "sleep 10",
           "echo ''",
           "echo '=========================================='",
-          "echo 'POSTIZ INSTALLED SUCCESSFULLY!'",
+          "echo 'POSTIZ INSTALLED!'",
           "echo '=========================================='",
           "echo ''",
-          "echo 'Access Postiz at: http://localhost:4007'",
-          "echo ''",
+          "echo 'Access at: http://localhost:4007'",
           "docker compose ps"
         ]
       }
